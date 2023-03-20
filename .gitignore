@@ -24,3 +24,7 @@ anki_transformer-*.tar
 
 # Temporary files, for example, from tests.
 /tmp/
+
+/.idea/
+
+*.iml
