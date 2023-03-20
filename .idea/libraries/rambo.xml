@@ -1,0 +1,21 @@
+<component name="libraryTable">
+  <library name="rambo" type="mix">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/_build/test/lib/rambo/ebin" />
+      <root url="file://$PROJECT_DIR$/_build/test/lib/rambo/ebin" />
+      <root url="file://$PROJECT_DIR$/_build/dev/lib/rambo/ebin" />
+      <root url="file://$PROJECT_DIR$/_build/test/lib/rambo/ebin" />
+      <root url="file://$PROJECT_DIR$/_build/dev/lib/rambo/ebin" />
+      <root url="file://$PROJECT_DIR$/_build/test/lib/rambo/ebin" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="file://$PROJECT_DIR$/deps/rambo/lib" />
+      <root url="file://$PROJECT_DIR$/deps/rambo/priv" />
+      <root url="file://$PROJECT_DIR$/deps/rambo/lib" />
+      <root url="file://$PROJECT_DIR$/deps/rambo/priv" />
+      <root url="file://$PROJECT_DIR$/deps/rambo/lib" />
+      <root url="file://$PROJECT_DIR$/deps/rambo/priv" />
+    </SOURCES>
+  </library>
+</component>
