@@ -2,27 +2,13 @@ defmodule AnkiConverter do
   require Logger
 
   @anki_separator ?\t
-
   @md_answer_separator "\n\n"
-
   @md_question_title "### Question\n"
   @md_answer_title "### Answer\n"
 
-  def f1 do
-    convert_from_anki_to_markdown_dir!("examples/anki.csv", "examples/output_md")
-  end
-
-  def f2 do
-    convert_from_markdown_dir_to_anki!("examples/output_md", "examples/anki.csv")
-  end
-
-  def f3 do
-    convert_from_anki_to_html_dir!("examples/anki.csv", "examples/output_html")
-  end
-
   def convert_from_anki_to_markdown_dir!(input_path, output_path) do
     input_path
-    |> import!(from: :anki_csv, separator: @anki_separator)
+    |> import_from_anki_csv!(@anki_separator)
     |> convert_from_html_to_md!()
     |> export!(output_path,
       to: :directory,
@@ -33,7 +19,7 @@ defmodule AnkiConverter do
 
   def convert_from_markdown_dir_to_anki!(input_path, output_path) do
     input_path
-    |> import!(from: :markdown_dir)
+    |> import_from_markdown_dir!()
     |> convert_from_md_to_html!()
     |> export!(output_path,
       to: :csv,
@@ -44,7 +30,7 @@ defmodule AnkiConverter do
 
   def convert_from_anki_to_html_dir!(input_path, output_path) do
     input_path
-    |> import!(from: :anki_csv, separator: @anki_separator)
+    |> import_from_anki_csv!(@anki_separator)
     |> convert_from_html_to_md!()
     |> export!(output_path,
       to: :directory,
@@ -53,26 +39,31 @@ defmodule AnkiConverter do
     )
   end
 
-  def import!(input_path, from: :anki_csv, separator: separator) do
+  def import_from_anki_csv!(input_path, separator) do
     csv = File.stream!(input_path) |> CSV.decode!(separator: separator, headers: false)
 
-    Enum.map(csv, fn row ->
+    cards = Enum.map(csv, fn row ->
       [question | [answer | _]] = row
       tags = Enum.at(row, 2, "") |> String.split() |> Enum.join(" ")
+
       {
         question,
         answer,
         tags,
-        # TODO: This needs to remove HTML
-        case question |> String.split("\n") do
+        case Panpipe.pandoc!(question, from: :html, to: :plain) |> String.split("\n") do
           [question, ""] -> question
           [question | _] -> question <> "..."
         end
       }
     end)
+    |> Enum.sort(fn {q1, _, _, _}, {q2, _, _, _} -> q1 < q2 end)
+
+    IO.inspect("Imported #{length(cards)} cards from #{input_path}")
+
+    cards
   end
 
-  def import!(input_path, from: :markdown_dir) do
+  def import_from_markdown_dir!(input_path) do
     input_path
     |> File.ls!()
     |> Enum.filter(fn file -> file != "index.md" end)
@@ -158,7 +149,6 @@ defmodule AnkiConverter do
     convert_fn = fn text ->
       text
       |> Panpipe.pandoc!(from: :markdown, to: :html)
-      |> String.replace("\n", "")
     end
 
     Enum.map(notes, fn {question, answer, tags, question_line} ->
