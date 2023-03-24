@@ -9,7 +9,7 @@ defmodule AnkiConverter do
   def convert_from_anki_to_markdown_dir!(input_path, output_path) do
     input_path
     |> import_from_anki_csv!(@anki_separator)
-    |> convert_from_html_to_md!()
+    |> convert_from_anki_html_to_md!()
     |> export!(output_path,
       to: :directory,
       answer_separator: @md_answer_separator,
@@ -28,15 +28,19 @@ defmodule AnkiConverter do
     )
   end
 
-  def convert_from_anki_to_html_dir!(input_path, output_path) do
+  def convert_from_md_to_html_dir!(input_path, output_path) do
+    File.rm_rf!(output_path)
+    File.mkdir!(output_path)
+
     input_path
-    |> import_from_anki_csv!(@anki_separator)
-    |> convert_from_html_to_md!()
-    |> export!(output_path,
-      to: :directory,
-      answer_separator: @md_answer_separator,
-      extension: "md"
-    )
+    |> File.ls!()
+    |> Enum.filter(fn file -> file != "index.md" end)
+    |> Enum.each(fn filename ->
+      in_file_path = Path.join(input_path, filename)
+      out_file_path = Path.join(output_path, String.replace(filename, ".md", ".html"))
+      IO.puts "Converting #{input_path} to #{out_file_path}"
+      Panpipe.pandoc(input: in_file_path, output: out_file_path, css: "assets/styles.css", standalone: true, self_contained: true)
+    end)
   end
 
   def import_from_anki_csv!(input_path, separator) do
@@ -72,6 +76,7 @@ defmodule AnkiConverter do
         Path.join(input_path, filename)
         |> File.read!()
         |> String.split("#{@md_answer_separator}\n")
+        |> Enum.map(&String.trim/1)
 
       [question | [answer | _]] = text
       tags = Enum.at(text, 2, "") |> String.split() |> Enum.join(" ")
@@ -96,6 +101,8 @@ defmodule AnkiConverter do
     file = File.open!(output_file, [:append])
 
     Enum.each(notes, fn {question, answer, tags, _} ->
+      question = remove_newlines_outside_pre(question)
+      answer = remove_newlines_outside_pre(answer)
       IO.binwrite(file, "\"" <> String.replace(question, "\"", "\"\"") <> "\"#{answer_separator}")
       IO.binwrite(file, "\"" <> String.replace(answer, "\"", "\"\"") <> "\"#{answer_separator}")
       IO.binwrite(file, "#{tags}#{note_separator}")
@@ -132,8 +139,12 @@ defmodule AnkiConverter do
     end)
   end
 
-  def convert_from_html_to_md!(notes) do
-    convert_fn = &Panpipe.pandoc!(&1, from: :html, to: :markdown)
+  def convert_from_anki_html_to_md!(notes) do
+    convert_fn = fn t ->
+      Panpipe.pandoc!(t, from: :html, to: :markdown)
+      # Remove separation lines (lines with only \)
+      |> String.replace("\n\\\n", "")
+    end
 
     Enum.map(notes, fn {question, answer, tags, question_line} ->
       {
@@ -149,6 +160,7 @@ defmodule AnkiConverter do
     convert_fn = fn text ->
       text
       |> Panpipe.pandoc!(from: :markdown, to: :html)
+      |> String.trim()
     end
 
     Enum.map(notes, fn {question, answer, tags, question_line} ->
@@ -168,5 +180,21 @@ defmodule AnkiConverter do
     |> String.downcase()
     |> String.trim()
     |> (fn s -> s <> "." <> ext end).()
+  end
+
+  def remove_newlines_outside_pre(html_string) do
+    pre_block_pattern = ~r/<pre.*?<\/pre>/s
+    outside_pre_blocks = Regex.split(pre_block_pattern, html_string, include_captures: true)
+
+    transformed_outside_pre_blocks =
+      Enum.map(outside_pre_blocks, fn part ->
+        if String.starts_with?(part, "<pre") do
+          part
+        else
+          String.replace(part, "\n", "")
+        end
+      end)
+
+    Enum.join(transformed_outside_pre_blocks)
   end
 end
