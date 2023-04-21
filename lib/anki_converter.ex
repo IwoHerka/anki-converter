@@ -1,9 +1,10 @@
 defmodule AnkiConverter do
   require Logger
 
-  @anki_separator ?\t
+  @anki_separator ","
   @md_answer_separator "\n\n"
   @md_question_title "### Question\n"
+  @md_question_title_regex ~r/### Question [0-9]+(\.[0-9]+)*\n/
   @md_answer_title "### Answer\n"
 
   def convert_from_anki_to_markdown_dir!(input_path, output_path) do
@@ -23,7 +24,7 @@ defmodule AnkiConverter do
     |> convert_from_md_to_html!()
     |> export!(output_path,
       to: :csv,
-      answer_separator: IO.chardata_to_string([@anki_separator]),
+      answer_separator: @anki_separator,
       note_separator: "\n"
     )
   end
@@ -70,6 +71,8 @@ defmodule AnkiConverter do
   def import_from_markdown_dir!(input_path) do
     input_path
     |> File.ls!()
+    |> Enum.sort()
+    |> IO.inspect
     |> Enum.filter(fn file -> file != "index.md" end)
     |> Enum.map(fn filename ->
       text =

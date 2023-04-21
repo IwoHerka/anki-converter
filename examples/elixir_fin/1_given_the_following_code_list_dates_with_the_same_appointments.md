@@ -1,7 +1,7 @@
 ### Question
 Given the following code, list dates with the same appointments.
 
-```
+```elixir
 :ets.new(:todo_list, [:bag, :named_table]) # => :todo_list
 :ets.insert(:todo_list, {~D[2018-05-24], "Dentist"}) # => true
 :ets.insert(:todo_list, {~D[2018-05-24], "Shopping"}) # => true
@@ -11,7 +11,7 @@ Given the following code, list dates with the same appointments.
 
 
 ### Answer
-```
+```elixir
 :ets.match_object(:todo_list, {:_, "Haircut"})
 # => [{~D[2018-05-30], "Haircut"}, {~D[2018-05-24], "Haircut"}]
 ```
@@ -22,4 +22,4 @@ accept any value, so the pattern `{:_, "Dentist"}` essentially matches
 all rows where the second element is `"Dentist"`.
 
 
-ets exercise
+ETS exercise

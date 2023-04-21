@@ -19,22 +19,14 @@ useful:
 ### Answer
 
 Scenario where a supervisor needs to start multiple processes with the
-same default child specs (e.g.multiple identical GenServer workers).
+same default child specs (e.g. multiple identical GenServer workers).
 For example:
 
+::: {#cb1 .sourceCode}
+``` {.sourceCode .elixir}
+def start_link(_) do     File.mkdir_p!(@db_folder)     children = Enum.map(1..@pool_size, &worker_spec/1)     Supervisor.start_link(children, strategy: :one_for_one) end  @doc "Override worker ID in default worker child spec" defp worker_spec(worker_id) do     default_worker_spec = {Todo.DatabaseWorker, {@db_folder, worker_id}}     Supervisor.child_spec(default_worker_spec, id: worker_id) end
 ```
-def start_link(_) do
-    File.mkdir_p!(@db_folder)
-    children = Enum.map(1..@pool_size, &worker_spec/1)
-    Supervisor.start_link(children, strategy: :one_for_one)
-end
-
-@doc "Override worker ID in default worker child spec"
-defp worker_spec(worker_id) do
-    default_worker_spec = {Todo.DatabaseWorker, {@db_folder, worker_id}}
-    Supervisor.child_spec(default_worker_spec, id: worker_id)
-end
-```
+:::
 
 In the above example we want to create multiple copies of a GenServer
 worker, each with the same default spec. By mapping them over
@@ -42,4 +34,7 @@ worker, each with the same default spec. By mapping them over
 function.
 
 
+### Answer
 supervisor genserver
+
+

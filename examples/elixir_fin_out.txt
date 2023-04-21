@@ -1,0 +1,10 @@
+kurwa,jego,mac
+"<p>Why is the following error thrown?</p><pre><code>table = :ets.new(:my_table, [])
+# =&gt; #Reference&lt;0.4030288514.1534984196.194401&gt;
+:ets.insert(table, {:key_1,1})
+# =&gt; true
+spawn(fn -&gt; :ets.insert(table, {:key_3, 3})end)
+# =&gt; #PID&lt;0.113.0&gt;
+# Process #PID&lt;0.113.0&gt; raised an exception ** (ArgumentError) argument error (stdlib)
+:ets.insert(#Reference&lt;0.4030288514.1534984196.194401&gt;, {:key_3, 3})
+# =&gt; nil</code></pre>","The default. The owner process can read from and write to the table. All other processes can read from the table.</li><li><code>public</code> - All processes can read from and write to the table.</li><li><code>private</code> - Only the owner process can access the table.</li></ul>",ets
