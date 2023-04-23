@@ -1,7 +1,7 @@
 ### Question
 What is the output of the following code?
 
-```elixir
+```
 spawn(fn ->
   spawn_link (fn ->
       Process.sleep(1000)
@@ -14,7 +14,7 @@ end)
 
 
 ### Answer
-```elixir
+```
 #PID<0.140.0>  15:00:40.443 [error] in Process 1    
 (stdlib) erl_eval.erl:678: :erl_eval.do_apply/6
 ```

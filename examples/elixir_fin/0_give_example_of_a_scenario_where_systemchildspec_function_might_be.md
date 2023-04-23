@@ -22,7 +22,7 @@ Scenario where a supervisor needs to start multiple processes with the
 same default child specs (e.g. multiple identical GenServer workers).
 For example:
 
-```elixir
+```
 def start_link(_) do
     File.mkdir_p!(@db_folder)
     children = Enum.map(1..@pool_size, &worker_spec/1)

@@ -1,7 +1,7 @@
 ### Question
 What is the result of the following two invocations?
 
-```elixir
+```
 spawn_link(fn -> Process.sleep(4000); IO.puts("ending") end)
 spawn_link(fn -> Process.sleep(4000); raise("ending") end)
 ```

@@ -8,7 +8,7 @@ In [`Supervisor.start_link(child_spec,
 options)`](https://hexdocs.pm/elixir/Supervisor.html#start_link/2) as part of
 the options. For example:
 
-```elixir
+```
 Supervisor.start_link([
     Todo.ProcessRegistry, Todo.Cache, Todo.Database],
     strategy: :one_for_one,

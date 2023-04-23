@@ -2,7 +2,7 @@
 In the following code, why is the ETS table wrapped in `GenServer`?
 Why there's no callback code for `get` and `put`?
 
-```elixir
+```
 defmodule ETSKeyValue do
     use GenServer
     

@@ -5,7 +5,7 @@ want to use the default
 [`child_spec`](https://hexdocs.pm/elixir/GenServer.html) provided by
 `GenServer`. For example:
 
-```elixir
+```
 defmodule Stack do
     use GenServer
     
@@ -31,7 +31,7 @@ or modify a child specification, you can use the
 function. For example, to run the stack with a different `:id` and a
 `:shutdown`:
 
-```elixir
+```
 children = [Supervisor.child_spec({Stack, [:hello]}, id: MyStack, shutdown: 10_000)]
 Supervisor.start_link(children, strategy: :one_for_one)
 ```

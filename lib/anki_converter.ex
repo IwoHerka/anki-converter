@@ -1,7 +1,12 @@
 defmodule AnkiConverter do
+  @moduledoc """
+  Module which allows to convert between Anki, Mardown and HTML representations
+  of learning flashcards.
+  """
+
   require Logger
 
-  @anki_separator ","
+  @anki_separator ?\t
   @md_answer_separator "\n\n"
   @md_question_title "### Question\n"
   @md_question_title_regex ~r/### Question [0-9]+(\.[0-9]+)*\n/
@@ -24,7 +29,7 @@ defmodule AnkiConverter do
     |> convert_from_md_to_html!()
     |> export!(output_path,
       to: :csv,
-      answer_separator: @anki_separator,
+      answer_separator: IO.chardata_to_string([@anki_separator]),
       note_separator: "\n"
     )
   end
@@ -52,12 +57,17 @@ defmodule AnkiConverter do
   end
 
   def import_from_anki_csv!(input_path, separator) do
-    csv = File.stream!(input_path) |> CSV.decode!(separator: separator, headers: false)
+    Logger.info("Importing from #{input_path}, separator: '#{to_string([separator])}'")
+
+    csv =
+      File.stream!(input_path)
+      |> CSV.decode!(separator: separator, headers: false, escape_max_lines: 1000)
 
     cards =
       Enum.map(csv, fn row ->
         [question | [answer | _]] = row
         tags = Enum.at(row, 2, "") |> String.split() |> Enum.join(" ")
+        Logger.info("Parsing question: '#{String.slice(question, 0, 50)}...'")
 
         {
           question,
@@ -71,7 +81,7 @@ defmodule AnkiConverter do
       end)
       |> Enum.sort(fn {q1, _, _, _}, {q2, _, _, _} -> q1 < q2 end)
 
-    IO.inspect("Imported #{length(cards)} cards from #{input_path}")
+    Logger.info("Imported #{length(cards)} cards!")
 
     cards
   end
@@ -80,7 +90,6 @@ defmodule AnkiConverter do
     input_path
     |> File.ls!()
     |> Enum.sort()
-    |> IO.inspect()
     |> Enum.filter(fn file -> file != "index.md" end)
     |> Enum.map(fn filename ->
       text =
@@ -167,24 +176,27 @@ defmodule AnkiConverter do
     end)
   end
 
-  def convert_from_md_to_html!(notes) do
+  def convert_from_md_to_html!(card) do
     convert_fn = fn text ->
       text
       |> Panpipe.pandoc!(from: :markdown, to: :html)
       |> String.trim()
     end
 
-    Enum.map(notes, fn {question, answer, tags, question_line} ->
+    Enum.map(card, fn {question, answer, tags, question_line} ->
       {
-        convert_fn.(question |> String.replace(@md_question_title, "")),
-        convert_fn.(answer |> String.replace(@md_answer_title, "")),
+        question |> String.replace(@md_question_title, "") |> convert_fn.(),
+        answer |> String.replace(@md_answer_title, "") |> convert_fn.(),
         tags,
         question_line
       }
     end)
   end
 
-  def to_name(question, ext: ext) do
+  @doc """
+  Generate card filename based on the first line of the question and specified extension.
+  """
+  defp to_name(question, ext: ext) do
     question
     |> String.replace(~r/[^a-zA-Z\s]/, "")
     |> String.replace(" ", "_")
@@ -193,9 +205,11 @@ defmodule AnkiConverter do
     |> (fn s -> s <> "." <> ext end).()
   end
 
-  def remove_newlines_outside_pre(html_string) do
-    pre_block_pattern = ~r/<pre.*?<\/pre>/s
-    outside_pre_blocks = Regex.split(pre_block_pattern, html_string, include_captures: true)
+  @doc """
+  Removes newlines from card (in HTML format), with the exception of <pre> blocks.
+  """
+  defp remove_newlines_outside_pre(html_card) do
+    outside_pre_blocks = Regex.split(~r/<pre.*?<\/pre>/s, html_card, include_captures: true)
 
     transformed_outside_pre_blocks =
       Enum.map(outside_pre_blocks, fn part ->

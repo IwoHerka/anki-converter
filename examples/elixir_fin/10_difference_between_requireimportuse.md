@@ -22,7 +22,7 @@ Integer.is_even(42)
 it allowing the module to inject some code into the current context. So writing
 `use X` is same as writing:
 
-```elixir
+```
 require X
 X.__using__() 
 ```

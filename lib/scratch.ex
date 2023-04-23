@@ -15,7 +15,7 @@ defmodule Scratch do
         <button class="hidden" id="close-preview">Close</button>
         <iframe id="preview-iframe" src="" frameborder="0"></iframe>
       </div>
-
+    
       <div id="sidenav" class="sidenav">
         <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
         <a href="#">About</a>
@@ -23,12 +23,14 @@ defmodule Scratch do
         <a href="#">Clients</a>
         <a href="#">Contact</a>
       </div>
-
+    
       <span style="font-size:20px;cursor:pointer" onclick="openNav()">&#9776;</span>
     """
 
     html =
-      File.read!("examples/elixir_fin/7_elixir_allows_you_to_define_you_childspec_as_part_of_your_module_if_you.md")
+      File.read!(
+        "examples/elixir_fin/7_elixir_allows_you_to_define_you_childspec_as_part_of_your_module_if_you.md"
+      )
       |> Panpipe.pandoc!(css: "assets/styles.css", standalone: true, self_contained: true)
       |> String.replace("<body>", "<body>#{sidenav}")
       |> String.replace("<head>", "<head>#{fonts}#{scripts}")
@@ -37,7 +39,7 @@ defmodule Scratch do
   end
 
   def f1 do
-    AC.convert_from_anki_to_markdown_dir!("examples/elixir.txt", "examples/elixir_out_test")
+    AC.convert_from_anki_to_markdown_dir!("examples/elixir2.txt", "examples/elixir_out_test")
   end
 
   def f2 do
