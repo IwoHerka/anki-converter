@@ -28,3 +28,5 @@ anki_transformer-*.tar
 /.idea/
 
 *.iml
+
+.DS_Store

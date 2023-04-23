@@ -14,7 +14,7 @@ make sure that nothing bad happens while executing guards and no
 mutations happen anywhere. It also allows the compiler to optimize the
 code related to guards efficiently.
 
-```
+```elixir
 defmodule Factorial do
     def of(0), do: 1
     
@@ -23,3 +23,6 @@ defmodule Factorial do
     end
 end
 ```
+
+
+language

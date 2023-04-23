@@ -16,10 +16,10 @@ Given the following code, list dates with the same appointments.
 # => [{~D[2018-05-30], "Haircut"}, {~D[2018-05-24], "Haircut"}]
 ```
 
-The function `:ets.match_object/2` accepts a match pattern - a tuple
-that describes the shape of the row. The atom `:_` indicates that you
-accept any value, so the pattern `{:_, "Dentist"}` essentially matches
-all rows where the second element is `"Dentist"`.
+The function [`:ets.match_object/2`](https://www.erlang.org/doc/man/ets.html#match_object-2)
+accepts a match pattern - a tuple that describes the shape of the row. The atom
+`:_` indicates that you accept any value, so the pattern `{:_, "Dentist"}`
+essentially matches all rows where the second element is `"Dentist"`.
 
 
-ETS exercise
+ets erlang

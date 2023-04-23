@@ -1,7 +1,7 @@
 ### Question
 When you start your BEAM instance with the `--hidden` argument, the node
 isn't seen in other nodes' connected lists (and vice versa). In what
-scenario, this is useful?
+scenario this is useful?
 
 
 ### Answer

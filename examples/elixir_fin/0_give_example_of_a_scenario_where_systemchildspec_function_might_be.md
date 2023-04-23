@@ -2,8 +2,8 @@
 Give example of a scenario where `System.child_spec/2` function might be
 useful:
 
-> `Supervisor.child_spec/2` is a function for explicitly building and
-> overriding child specification.
+> [`Supervisor.child_spec/2`](https://hexdocs.pm/elixir/Supervisor.html#child_spec/2)
+> is a function for explicitly building and overriding child specification.
 >
 > Similar to `start_link/2` and `init/2`, it expects a module,
 > `{module, arg}`, or a child specification map. If a two-element tuple
@@ -38,8 +38,8 @@ end
 
 In the above example we want to create multiple copies of a GenServer
 worker, each with the same default spec. By mapping them over
-`Supervisor.child_spec`, we can parametrize each spec in `worker_spec/1`
-function.
+[`Supervisor.child_spec/2`](https://hexdocs.pm/elixir/Supervisor.html#child_spec/2),
+we can parametrize each spec in `worker_spec/1` function.
 
 
 supervisor genserver

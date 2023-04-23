@@ -39,29 +39,37 @@ defmodule AnkiConverter do
     |> Enum.each(fn filename ->
       in_file_path = Path.join(input_path, filename)
       out_file_path = Path.join(output_path, String.replace(filename, ".md", ".html"))
-      IO.puts "Converting #{input_path} to #{out_file_path}"
-      Panpipe.pandoc(input: in_file_path, output: out_file_path, css: "assets/styles.css", standalone: true, self_contained: true)
+      IO.puts("Converting #{input_path} to #{out_file_path}")
+
+      Panpipe.pandoc(
+        input: in_file_path,
+        output: out_file_path,
+        css: "assets/styles.css",
+        standalone: true,
+        self_contained: true
+      )
     end)
   end
 
   def import_from_anki_csv!(input_path, separator) do
     csv = File.stream!(input_path) |> CSV.decode!(separator: separator, headers: false)
 
-    cards = Enum.map(csv, fn row ->
-      [question | [answer | _]] = row
-      tags = Enum.at(row, 2, "") |> String.split() |> Enum.join(" ")
+    cards =
+      Enum.map(csv, fn row ->
+        [question | [answer | _]] = row
+        tags = Enum.at(row, 2, "") |> String.split() |> Enum.join(" ")
 
-      {
-        question,
-        answer,
-        tags,
-        case Panpipe.pandoc!(question, from: :html, to: :plain) |> String.split("\n") do
-          [question, ""] -> question
-          [question | _] -> question <> "..."
-        end
-      }
-    end)
-    |> Enum.sort(fn {q1, _, _, _}, {q2, _, _, _} -> q1 < q2 end)
+        {
+          question,
+          answer,
+          tags,
+          case Panpipe.pandoc!(question, from: :html, to: :plain) |> String.split("\n") do
+            [question, ""] -> question
+            [question | _] -> question <> "..."
+          end
+        }
+      end)
+      |> Enum.sort(fn {q1, _, _, _}, {q2, _, _, _} -> q1 < q2 end)
 
     IO.inspect("Imported #{length(cards)} cards from #{input_path}")
 
@@ -72,7 +80,7 @@ defmodule AnkiConverter do
     input_path
     |> File.ls!()
     |> Enum.sort()
-    |> IO.inspect
+    |> IO.inspect()
     |> Enum.filter(fn file -> file != "index.md" end)
     |> Enum.map(fn filename ->
       text =
